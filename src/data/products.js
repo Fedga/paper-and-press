@@ -1,2 +1,2 @@
 import productsData from './products.json';
-export const PRODUCTS = productsData;
+export const PRODUCTS = productsData.items;
