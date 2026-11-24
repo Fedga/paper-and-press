@@ -1,0 +1,6 @@
+{
+  "name": "Paper & Press Studio",
+  "description": "Independent digital craft, SVG cut files, laser templates, and printable stationery storefront powered by an Etsy product catalog.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
