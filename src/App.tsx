@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowRight,
   CheckCircle2,
-  CreditCard,
   Download,
-  Scissors,
   Search,
   ShieldCheck,
-  ShoppingBag,
   SlidersHorizontal,
+  Sparkles,
   Star,
   X,
 } from 'lucide-react';
@@ -17,139 +14,38 @@ import type { CartItem } from './checkout';
 import {
   buildAutoCategories,
   extractTagIndex,
-  formatPrice,
   formatTagLabel,
-  splitProductTitle,
 } from './utils/catalog';
 import { CartDrawer } from './components/CartDrawer';
 import { FilterSidebar } from './components/FilterSidebar';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
+import { Hero } from './components/Hero';
 import { ProductCard } from './components/ProductCard';
 import { ProductDetailPage } from './components/ProductDetailPage';
 
 type SortOption = 'featured' | 'price-asc' | 'price-desc' | 'title-asc';
-type QuickCategoryId =
-  | 'all'
-  | 'popup-cards'
-  | 'christmas'
-  | 'planners-calendars'
-  | 'clipart-svg';
 
 const CART_STORAGE_KEY = 'paper_press_bag_v1';
 
-interface QuickCategoryPill {
-  id: QuickCategoryId;
-  label: string;
-  matches: (product: Product) => boolean;
-}
-
-const QUICK_CATEGORY_PILLS: QuickCategoryPill[] = [
+const STUDIO_REVIEWS = [
   {
-    id: 'all',
-    label: 'All Designs',
-    matches: () => true,
-  },
-  {
-    id: 'popup-cards',
-    label: '3D Pop-Up Cards',
-    matches: (p) => {
-      const text = `${p.TITLE} ${p.TAGS.join(' ')}`.toLowerCase();
-      return (
-        text.includes('pop up') ||
-        text.includes('pop_up') ||
-        text.includes('popup') ||
-        text.includes('kirigami') ||
-        text.includes('3d christmas village')
-      );
-    },
-  },
-  {
-    id: 'christmas',
-    label: 'Christmas',
-    matches: (p) => {
-      const text = `${p.TITLE} ${p.TAGS.join(' ')}`.toLowerCase();
-      return (
-        text.includes('christmas') ||
-        text.includes('xmas') ||
-        text.includes('holiday') ||
-        text.includes('winter')
-      );
-    },
-  },
-  {
-    id: 'planners-calendars',
-    label: 'Planners & Calendars',
-    matches: (p) => {
-      const text = `${p.TITLE} ${p.TAGS.join(' ')}`.toLowerCase();
-      return (
-        text.includes('planner') ||
-        text.includes('calendar') ||
-        text.includes('resume') ||
-        text.includes('coloring')
-      );
-    },
-  },
-  {
-    id: 'clipart-svg',
-    label: 'Clipart & SVG',
-    matches: (p) => {
-      const text = `${p.TITLE} ${p.TAGS.join(' ')}`.toLowerCase();
-      return (
-        text.includes('clipart') ||
-        text.includes('sublimation') ||
-        text.includes('svg') ||
-        text.includes('kinusaiga')
-      );
-    },
-  },
-];
-
-const HOW_IT_WORKS_STEPS = [
-  {
-    step: '1',
-    title: 'Pick Your Design',
-    description:
-      'Browse Cricut SVGs, 3D pop-up templates, laser kits, sublimation packs, and calm printable planners.',
-    icon: ShoppingBag,
-  },
-  {
-    step: '2',
-    title: 'Instant Checkout',
-    description:
-      'Complete quick, secure checkout with transparent GBP pricing—no postage fees or shipping delays.',
-    icon: CreditCard,
-  },
-  {
-    step: '3',
-    title: 'Download, Print & Craft',
-    description:
-      'Unzip your organized SVG, PNG, DXF & PDF files immediately and upload straight to your cutting machine or printer.',
-    icon: Scissors,
-  },
-];
-
-const CUSTOMER_REVIEWS = [
-  {
+    name: 'Sarah M.',
+    badge: 'Verified Cricut Crafter',
     quote:
-      'The magenta score layer uploaded straight into Cricut Design Space with zero fussing. I crafted twelve Golden Retriever 3D pop-up cards in one evening and every single one folded completely flat into an A7 envelope.',
-    author: 'Hannah Whitaker',
-    location: 'Bath, UK',
-    edition: '3D Pop Up Christmas Card SVG',
+      'The 3D pop-up card cut cleanly on the very first try! The magenta score lines and illustrated assembly guide made it effortless.',
   },
   {
+    name: 'Hannah W.',
+    badge: 'Verified Buyer',
     quote:
-      'I tried three complex planners before switching to the 2027 ADHD Reset bundle. Having both hyperlinked GoodNotes tabs and a calm Today-Only Notion inbox with Safe-to-Spend math made payday budgeting genuinely peaceful.',
-    author: 'Claire Donnelly',
-    location: 'Bristol, UK',
-    edition: '2027 ADHD Digital Planner & Notion Bundle',
+      'Instant download worked straight away and the 300 DPI PNGs printed with gorgeous, crisp colours for my holiday sweatshirts.',
   },
   {
+    name: 'Claire T.',
+    badge: 'Verified GoodNotes User',
     quote:
-      'Every gingerbread house in the laser village kit included hex colour swatches and a 1-page stacking blueprint. All ten houses cut cleanly on 3mm birch plywood and sold out at our winter craft market.',
-    author: 'Martin Gallagher',
-    location: 'Hearth & Pine Laser Co.',
-    edition: '3D Christmas Village Laser Cut Bundle',
+      'Finally a 2027 planner that feels calm and uncluttered. The hyperlinks are super fast on my iPad and the paycheck tracker is a lifesaver.',
   },
 ];
 
@@ -184,7 +80,6 @@ export default function App() {
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
-  const [activeQuickPill, setActiveQuickPill] = useState<QuickCategoryId>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -194,7 +89,6 @@ export default function App() {
 
   const catalogRef = useRef<HTMLElement | null>(null);
 
-  // Persist shopping bag in localStorage
   useEffect(() => {
     try {
       const compact = cartItems.map((item) => ({
@@ -207,7 +101,6 @@ export default function App() {
     }
   }, [cartItems]);
 
-  // Sync browser Back/Forward with hash route
   useEffect(() => {
     const onHashChange = () => {
       setSelectedProductId(readProductIdFromHash());
@@ -216,11 +109,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // Derived auto-categories and complete tag index from CSV TAGS column
   const categories = useMemo(() => buildAutoCategories(PRODUCTS), []);
   const tagIndex = useMemo(() => extractTagIndex(PRODUCTS), []);
 
-  // Curated hero picks (1st, 5th, and 6th listings showcase varied crafts)
   const featuredProducts = useMemo(() => {
     const indices = [0, 4, 5];
     const picked = indices
@@ -234,18 +125,12 @@ export default function App() {
     [selectedProductId],
   );
 
-  // Filtered and sorted catalog
   const filteredProducts = useMemo(() => {
     const categoryObj = categories.find((c) => c.id === activeCategory);
-    const quickPillObj = QUICK_CATEGORY_PILLS.find((q) => q.id === activeQuickPill);
     const query = searchQuery.trim().toLowerCase();
 
     const list = PRODUCTS.filter((product) => {
       if (categoryObj && !categoryObj.matches(product)) {
-        return false;
-      }
-
-      if (quickPillObj && !quickPillObj.matches(product)) {
         return false;
       }
 
@@ -281,7 +166,7 @@ export default function App() {
       return [...list].sort((a, b) => a.TITLE.localeCompare(b.TITLE));
     }
     return list;
-  }, [categories, activeCategory, activeQuickPill, selectedTags, searchQuery, sortBy]);
+  }, [categories, activeCategory, selectedTags, searchQuery, sortBy]);
 
   const navigateToProduct = useCallback((product: Product) => {
     window.location.hash = `#/product/${encodeURIComponent(product.id)}`;
@@ -299,7 +184,6 @@ export default function App() {
   const handleSelectNavCategory = useCallback(
     (categoryId: string) => {
       setActiveCategory(categoryId);
-      setActiveQuickPill('all');
       setSelectedTags([]);
       if (selectedProductId) {
         window.location.hash = '#/';
@@ -314,20 +198,8 @@ export default function App() {
     [selectedProductId],
   );
 
-  const handleSelectQuickPill = useCallback((pillId: QuickCategoryId) => {
-    setActiveQuickPill(pillId);
-    setActiveCategory('all');
-    setSelectedTags([]);
-  }, []);
-
-  const handleSelectSidebarCategory = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId);
-    setActiveQuickPill('all');
-  }, []);
-
   const handleSelectTagFromDetail = useCallback((normalizedTag: string) => {
     setActiveCategory('all');
-    setActiveQuickPill('all');
     setSearchQuery('');
     setSelectedTags([normalizedTag]);
     window.location.hash = '#/';
@@ -348,7 +220,6 @@ export default function App() {
   const handleClearFilters = useCallback(() => {
     setSearchQuery('');
     setActiveCategory('all');
-    setActiveQuickPill('all');
     setSelectedTags([]);
   }, []);
 
@@ -393,25 +264,33 @@ export default function App() {
 
   const hasActiveFilters =
     activeCategory !== 'all' ||
-    activeQuickPill !== 'all' ||
     selectedTags.length > 0 ||
     searchQuery.trim().length > 0;
 
-  const activeHeading = useMemo(() => {
-    if (activeQuickPill !== 'all') {
-      return (
-        QUICK_CATEGORY_PILLS.find((q) => q.id === activeQuickPill)?.label ||
-        'All Designs'
-      );
-    }
-    return categories.find((c) => c.id === activeCategory)?.label || 'All Designs';
-  }, [activeQuickPill, activeCategory, categories]);
-
-  const leadHeroProduct = featuredProducts[0];
-  const secondaryHeroProducts = featuredProducts.slice(1, 3);
+  const activeCategoryObj = categories.find((c) => c.id === activeCategory);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF8F5] font-['Plus_Jakarta_Sans',sans-serif] text-[#1E1E1C]">
+    <div className="flex min-h-screen flex-col bg-[#FAF7F2] text-[#1C1B18] selection:bg-[#1E4D3B] selection:text-white">
+      {/* Top Studio Trust Strip */}
+      <div className="border-b border-[#E6DFD3] bg-[#1E4D3B] px-4 py-2 text-center text-xs font-medium tracking-wide text-[#F7F4EE]">
+        <span className="inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <span className="inline-flex items-center gap-1.5">
+            <Download className="h-3.5 w-3.5 text-[#D4B483]" />
+            Instant Digital Downloads
+          </span>
+          <span className="hidden opacity-40 sm:inline">•</span>
+          <span className="inline-flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-[#D4B483]" />
+            Cricut, Silhouette &amp; GoodNotes Ready
+          </span>
+          <span className="hidden opacity-40 md:inline">•</span>
+          <span className="hidden items-center gap-1.5 md:inline-flex">
+            <ShieldCheck className="h-3.5 w-3.5 text-[#D4B483]" />
+            Small Business Commercial Use Included
+          </span>
+        </span>
+      </div>
+
       <Header
         navCategories={categories}
         activeCategory={activeCategory}
@@ -438,131 +317,14 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Boutique Hero Banner */}
-            <section className="border-b border-[#E8E2D9] bg-[#FAF8F5]">
-              <div className="mx-auto grid max-w-[1360px] grid-cols-1 items-stretch gap-8 px-5 py-9 sm:px-8 lg:grid-cols-12 lg:gap-12 lg:py-13">
-                {/* Left Editorial Copy */}
-                <div className="flex flex-col justify-between lg:col-span-6">
-                  <div>
-                    <p className="text-xs font-semibold tracking-[0.06em] text-[#C85A32]">
-                      Paper &amp; Press Studio · paperpressprintables.com
-                    </p>
-
-                    <h1
-                      className="font-['Fraunces',serif] mt-3.5 text-[clamp(2.15rem,3.6vw,3.35rem)] leading-[1.08] font-medium tracking-[-0.02em] text-[#1E1E1C]"
-                      style={{ textWrap: 'balance' }}
-                    >
-                      Heirloom Paper Crafts, Cricut SVGs &amp; Printable Editions
-                    </h1>
-
-                    <p className="mt-4 max-w-[48ch] text-[15px] leading-[1.7] text-[#5B554D]">
-                      Thoughtfully engineered 3D pop-up cards, laser-cut holiday villages,
-                      300 DPI sublimation clipart, and calm 2027 planners—crafted for
-                      effortless cutting, printing, and handmade gifting.
-                    </p>
-
-                    {/* Trust Pills */}
-                    <div className="mt-6 flex flex-wrap items-center gap-2.5">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D9] bg-[#FFFFFF] px-3.5 py-1.5 text-xs font-medium text-[#2C4C3B]">
-                        <Download className="h-3.5 w-3.5 text-[#C85A32]" strokeWidth={2} />
-                        <span>Instant Digital Download</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D9] bg-[#FFFFFF] px-3.5 py-1.5 text-xs font-medium text-[#2C4C3B]">
-                        <Scissors className="h-3.5 w-3.5 text-[#C85A32]" strokeWidth={2} />
-                        <span>Cricut &amp; Silhouette Ready</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E2D9] bg-[#FFFFFF] px-3.5 py-1.5 text-xs font-medium text-[#2C4C3B]">
-                        <ShieldCheck className="h-3.5 w-3.5 text-[#C85A32]" strokeWidth={2} />
-                        <span>Commercial Use Included</span>
-                      </span>
-                    </div>
-
-                    {/* Primary CTA */}
-                    <div className="mt-7 flex flex-wrap items-center gap-5">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          catalogRef.current?.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start',
-                          })
-                        }
-                        className="inline-flex min-h-[46px] shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-[#2C4C3B] px-6 py-2.5 text-sm font-semibold text-[#FAF8F5] shadow-[0_4px_14px_rgba(44,76,59,0.2)] transition-colors duration-150 hover:bg-[#223B2E] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2C4C3B]"
-                      >
-                        <span>Explore All {PRODUCTS.length} Editions</span>
-                        <ArrowRight className="h-4 w-4" strokeWidth={1.9} />
-                      </button>
-
-                      <a
-                        href="#how-it-works"
-                        className="text-sm font-medium text-[#4E4A44] underline decoration-[#D4C9BA] underline-offset-4 transition-colors hover:text-[#C85A32] hover:decoration-[#C85A32]"
-                      >
-                        How digital downloads work
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Curated Boutique Preview Cards */}
-                {leadHeroProduct && (
-                  <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-12 lg:col-span-6">
-                    <button
-                      type="button"
-                      onClick={() => navigateToProduct(leadHeroProduct)}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-[#E8E2D9] bg-[#FFFFFF] p-2 text-left shadow-[0_12px_30px_-20px_rgba(30,30,28,0.2)] transition-transform duration-200 hover:-translate-y-0.5 sm:col-span-7"
-                    >
-                      <div className="aspect-[4/3] w-full flex-1 overflow-hidden rounded-xl bg-[#F4EFE7] sm:aspect-auto sm:h-full sm:min-h-[290px]">
-                        <img
-                          src={leadHeroProduct.IMAGES[0]}
-                          alt={leadHeroProduct.TITLE}
-                          referrerPolicy="no-referrer"
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                        />
-                      </div>
-                      <div className="flex items-baseline justify-between gap-3 px-2 pt-2.5 pb-1">
-                        <span className="font-['Fraunces',serif] truncate text-[15px] font-medium text-[#1E1E1C] group-hover:text-[#2C4C3B]">
-                          {splitProductTitle(leadHeroProduct.TITLE).primary}
-                        </span>
-                        <span className="tabular-nums shrink-0 text-sm font-bold text-[#2C4C3B]">
-                          {formatPrice(
-                            leadHeroProduct.PRICE,
-                            leadHeroProduct.CURRENCY_CODE,
-                          )}
-                        </span>
-                      </div>
-                    </button>
-
-                    <div className="grid grid-cols-2 gap-3.5 sm:col-span-5 sm:grid-cols-1">
-                      {secondaryHeroProducts.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => navigateToProduct(item)}
-                          className="group flex flex-col overflow-hidden rounded-2xl border border-[#E8E2D9] bg-[#FFFFFF] p-2 text-left shadow-[0_10px_26px_-18px_rgba(30,30,28,0.18)] transition-transform duration-200 hover:-translate-y-0.5"
-                        >
-                          <div className="aspect-[4/3] w-full flex-1 overflow-hidden rounded-xl bg-[#F4EFE7] sm:aspect-[16/10]">
-                            <img
-                              src={item.IMAGES[0]}
-                              alt={item.TITLE}
-                              referrerPolicy="no-referrer"
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                            />
-                          </div>
-                          <div className="flex items-baseline justify-between gap-2 px-1.5 pt-2 pb-0.5">
-                            <span className="font-['Fraunces',serif] truncate text-xs font-medium text-[#1E1E1C] group-hover:text-[#2C4C3B]">
-                              {splitProductTitle(item.TITLE).primary}
-                            </span>
-                            <span className="tabular-nums shrink-0 text-xs font-bold text-[#2C4C3B]">
-                              {formatPrice(item.PRICE, item.CURRENCY_CODE)}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
+            <Hero
+              featuredProducts={featuredProducts}
+              totalCount={PRODUCTS.length}
+              onSelectProduct={navigateToProduct}
+              onBrowseCatalog={() =>
+                catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+            />
 
             {/* Main Catalog Section */}
             <section
@@ -570,45 +332,70 @@ export default function App() {
               id="catalog"
               className="mx-auto max-w-[1360px] scroll-mt-20 px-5 pt-10 sm:px-8 lg:pt-12"
             >
+              {/* Quick Category Pills */}
+              <div className="mb-7 flex flex-wrap items-center gap-2">
+                {categories.map((cat) => {
+                  const isActive = activeCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(cat.id);
+                        setSelectedTags([]);
+                      }}
+                      className={`rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition-all ${
+                        isActive
+                          ? 'bg-[#1E4D3B] text-white shadow-sm'
+                          : 'border border-[#E2DAD0] bg-white text-[#3D3A34] hover:border-[#1E4D3B] hover:text-[#1E4D3B]'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Search & Sort Toolbar */}
-              <div className="flex flex-col gap-4 border-b border-[#E8E2D9] pb-6 md:flex-row md:items-end md:justify-between">
+              <div className="flex flex-col gap-4 border-b border-[#E5DEC9] pb-6 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <h2 className="font-['Fraunces',serif] text-2xl font-medium tracking-tight text-[#1E1E1C] sm:text-3xl">
-                    {activeHeading}
+                  <h2 className="font-display text-2xl font-semibold tracking-tight text-[#1C1B18] sm:text-3xl">
+                    {activeCategoryObj?.label || 'All Printable Editions'}
                   </h2>
-                  <p className="tabular-nums mt-1 text-xs text-[#6B635A]">
-                    Showing {filteredProducts.length} of {PRODUCTS.length} digital editions
+                  <p className="tabular-nums mt-1 text-xs text-[#666157]">
+                    Showing {filteredProducts.length} of {PRODUCTS.length} studio editions
                     {selectedTags.length > 0 && (
                       <>
                         {' '}
                         · Filtered by{' '}
-                        {selectedTags.map((t) => formatTagLabel(t)).join(', ')}
+                        {selectedTags
+                          .map((t) => formatTagLabel(t))
+                          .join(', ')}
                       </>
                     )}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  {/* Live Search Bar */}
                   <div className="relative flex-1 sm:w-[290px] sm:flex-none">
                     <Search
-                      className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#766D64]"
+                      className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#7A7469]"
                       strokeWidth={1.8}
                     />
                     <input
                       type="search"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search SVGs, cards, planners…"
+                      placeholder="Search SVGs, planners, cards…"
                       aria-label="Search products"
-                      className="min-h-[42px] w-full rounded-full border border-[#E8E2D9] bg-[#FFFFFF] py-2 pr-9 pl-10 text-sm text-[#1E1E1C] placeholder:text-[#968C81] transition-colors focus:border-[#2C4C3B] focus:outline-none"
+                      className="min-h-[42px] w-full rounded-xl border border-[#DDD5C7] bg-white py-2 pr-9 pl-10 text-sm text-[#1C1B18] shadow-2xs placeholder:text-[#968F82] transition-colors focus:border-[#1E4D3B] focus:outline-none"
                     />
                     {searchQuery && (
                       <button
                         type="button"
                         onClick={() => setSearchQuery('')}
                         aria-label="Clear search"
-                        className="absolute top-1/2 right-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#766D64] hover:text-[#1E1E1C]"
+                        className="absolute top-1/2 right-2.5 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-[#7A7469] hover:text-[#1C1B18]"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -616,22 +403,20 @@ export default function App() {
                   </div>
 
                   <div className="flex items-center gap-2.5">
-                    {/* Mobile Filters Drawer Button */}
                     <button
                       type="button"
                       onClick={() => setMobileFiltersOpen(true)}
-                      className="inline-flex min-h-[42px] items-center gap-2 whitespace-nowrap rounded-full border border-[#E8E2D9] bg-[#FFFFFF] px-4 py-2 text-sm font-medium text-[#1E1E1C] hover:border-[#2C4C3B] lg:hidden"
+                      className="inline-flex min-h-[42px] items-center gap-2 whitespace-nowrap rounded-xl border border-[#DDD5C7] bg-white px-3.5 py-2 text-sm font-medium text-[#1C1B18] hover:border-[#1E4D3B] lg:hidden"
                     >
                       <SlidersHorizontal className="h-4 w-4" strokeWidth={1.8} />
                       <span>Filters</span>
                       {selectedTags.length > 0 && (
-                        <span className="tabular-nums text-xs text-[#C85A32]">
+                        <span className="tabular-nums text-xs text-[#1E4D3B]">
                           ({selectedTags.length})
                         </span>
                       )}
                     </button>
 
-                    {/* Sort Select */}
                     <label className="sr-only" htmlFor="catalog-sort">
                       Sort products
                     </label>
@@ -639,9 +424,9 @@ export default function App() {
                       id="catalog-sort"
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as SortOption)}
-                      className="min-h-[42px] rounded-full border border-[#E8E2D9] bg-[#FFFFFF] px-4 py-2 text-sm text-[#1E1E1C] focus:border-[#2C4C3B] focus:outline-none"
+                      className="min-h-[42px] rounded-xl border border-[#DDD5C7] bg-white px-3.5 py-2 text-sm text-[#1C1B18] shadow-2xs focus:border-[#1E4D3B] focus:outline-none"
                     >
-                      <option value="featured">Sort: Featured</option>
+                      <option value="featured">Sort: Studio Picks</option>
                       <option value="price-asc">Price: Low to High</option>
                       <option value="price-desc">Price: High to Low</option>
                       <option value="title-asc">Title: A to Z</option>
@@ -650,47 +435,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Quick Category Pills */}
-              <div
-                role="group"
-                aria-label="Quick category filters"
-                className="mt-5 flex flex-wrap items-center gap-2.5"
-              >
-                {QUICK_CATEGORY_PILLS.map((pill) => {
-                  const isActive =
-                    activeQuickPill === pill.id && activeCategory === 'all';
-                  const count = PRODUCTS.filter(pill.matches).length;
-                  return (
-                    <button
-                      key={pill.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => handleSelectQuickPill(pill.id)}
-                      className={`inline-flex min-h-[38px] shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2C4C3B] ${
-                        isActive
-                          ? 'bg-[#2C4C3B] text-[#FAF8F5] shadow-[0_2px_8px_rgba(44,76,59,0.22)]'
-                          : 'border border-[#E8E2D9] bg-[#FFFFFF] text-[#4E4A44] hover:border-[#C85A32]/60 hover:text-[#1E1E1C]'
-                      }`}
-                    >
-                      <span>{pill.label}</span>
-                      <span
-                        className={`tabular-nums text-[11px] font-medium ${
-                          isActive ? 'text-[#FAF8F5]/80' : 'text-[#8C8277]'
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
               {/* Sidebar + Responsive Product Grid */}
               <div className="mt-8 flex items-start gap-10">
                 <FilterSidebar
                   categories={categories}
                   activeCategory={activeCategory}
-                  onSelectCategory={handleSelectSidebarCategory}
+                  onSelectCategory={setActiveCategory}
                   tags={tagIndex}
                   selectedTags={selectedTags}
                   onToggleTag={handleToggleTag}
@@ -702,18 +452,18 @@ export default function App() {
 
                 <div className="min-w-0 flex-1">
                   {filteredProducts.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-[#E8E2D9] bg-[#FFFFFF] px-6 py-16 text-center">
-                      <p className="font-['Fraunces',serif] text-xl font-medium text-[#1E1E1C]">
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-[#E5DEC9] bg-white px-6 py-16 text-center shadow-2xs">
+                      <p className="font-display text-xl font-medium text-[#1C1B18]">
                         No editions match your current filters
                       </p>
-                      <p className="mt-2 max-w-[38ch] text-sm text-[#6B635A]">
+                      <p className="mt-2 max-w-[38ch] text-sm text-[#666157]">
                         Try clearing a selected tag or searching for broader terms like
                         “Christmas”, “SVG”, “Planner”, or “Sublimation”.
                       </p>
                       <button
                         type="button"
                         onClick={handleClearFilters}
-                        className="mt-6 min-h-[42px] rounded-full bg-[#2C4C3B] px-5 py-2 text-sm font-medium text-[#FAF8F5] hover:bg-[#223B2E]"
+                        className="mt-6 min-h-[42px] rounded-xl bg-[#1E4D3B] px-5 py-2 text-sm font-medium text-white hover:bg-[#163B2D]"
                       >
                         Reset all filters
                       </button>
@@ -734,125 +484,85 @@ export default function App() {
               </div>
             </section>
 
-            {/* 3-Step "How It Works" Visual Strip */}
-            <section
-              id="how-it-works"
-              className="mt-20 border-y border-[#E8E2D9] bg-[#F3EEE6]/70"
-            >
-              <div className="mx-auto max-w-[1360px] px-5 py-16 sm:px-8 lg:py-20">
-                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-                  <div>
-                    <p className="text-xs font-semibold tracking-[0.06em] text-[#C85A32]">
-                      Simple Digital Craft Delivery
-                    </p>
-                    <h2 className="font-['Fraunces',serif] mt-2 text-[clamp(1.75rem,3vw,2.4rem)] leading-[1.15] font-medium tracking-tight text-[#1E1E1C]">
-                      From Studio to Craft Table in 3 Steps
-                    </h2>
-                  </div>
-                  <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2C4C3B]">
-                    <CheckCircle2 className="h-4 w-4 text-[#C85A32]" strokeWidth={2} />
-                    <span>Zero shipping wait · Re-download anytime</span>
-                  </p>
-                </div>
-
-                <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-                  {HOW_IT_WORKS_STEPS.map((item, idx) => {
-                    const Icon = item.icon;
-                    return (
-                      <div
-                        key={item.step}
-                        className="relative flex flex-col rounded-2xl border border-[#E8E2D9] bg-[#FFFFFF] p-6 sm:p-7"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-['Fraunces',serif] tabular-nums text-2xl font-semibold text-[#C85A32]">
-                            0{item.step}
-                          </span>
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E8E2D9] bg-[#FAF8F5] text-[#2C4C3B]">
-                            <Icon className="h-4 w-4" strokeWidth={1.85} />
-                          </div>
-                        </div>
-
-                        <h3 className="font-['Fraunces',serif] mt-5 text-lg font-medium text-[#1E1E1C]">
-                          {item.step}. {item.title}
-                        </h3>
-                        <p className="mt-2 text-sm leading-[1.68] text-[#5B554D]">
-                          {item.description}
-                        </p>
-
-                        {idx < HOW_IT_WORKS_STEPS.length - 1 && (
-                          <span
-                            aria-hidden="true"
-                            className="pointer-events-none hidden md:flex absolute top-1/2 -right-5 z-10 h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#E8E2D9] bg-[#FAF8F5] text-[#C85A32]"
-                          >
-                            <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-
-            {/* 3-Card Customer Review Showcase */}
-            <section
-              aria-labelledby="reviews-heading"
-              className="mx-auto max-w-[1360px] px-5 pt-16 sm:px-8 lg:pt-20"
-            >
-              <div className="flex flex-col justify-between gap-3 border-b border-[#E8E2D9] pb-6 sm:flex-row sm:items-end">
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.06em] text-[#C85A32]">
-                    Maker Reviews
-                  </p>
-                  <h2
-                    id="reviews-heading"
-                    className="font-['Fraunces',serif] mt-2 text-[clamp(1.75rem,3vw,2.4rem)] leading-[1.15] font-medium tracking-tight text-[#1E1E1C]"
-                  >
-                    Trusted by Crafters &amp; Small Shops
+            {/* How Digital Downloads Work + Crafter Reviews */}
+            <section className="mx-auto mt-20 max-w-[1360px] px-5 pb-16 sm:px-8">
+              <div className="rounded-3xl border border-[#E5DEC9] bg-white p-8 shadow-2xs sm:p-12">
+                <div className="mx-auto max-w-2xl text-center">
+                  <span className="inline-block rounded-full bg-[#F2ECE1] px-3.5 py-1 text-xs font-semibold tracking-wider text-[#1E4D3B] uppercase">
+                    How It Works
+                  </span>
+                  <h2 className="font-display mt-3 text-2xl font-semibold text-[#1C1B18] sm:text-3xl">
+                    From Download to Craft Table in Minutes
                   </h2>
                 </div>
-                <p className="text-sm text-[#6B635A]">
-                  Verified feedback across Cricut, Glowforge &amp; GoodNotes editions
-                </p>
-              </div>
 
-              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-                {CUSTOMER_REVIEWS.map((review) => (
-                  <figure
-                    key={review.author}
-                    className="flex flex-col justify-between rounded-2xl border border-[#E8E2D9] bg-[#FFFFFF] p-6 sm:p-7"
-                  >
-                    <div>
-                      <div
-                        className="flex items-center gap-0.5 text-[#C85A32]"
-                        aria-label="5 out of 5 stars"
-                      >
-                        {Array.from({ length: 5 }).map((_, starIdx) => (
-                          <Star
-                            key={starIdx}
-                            className="h-3.5 w-3.5 fill-current"
-                            strokeWidth={1.5}
-                          />
-                        ))}
-                      </div>
-                      <blockquote className="mt-4 text-[14.5px] leading-[1.72] text-[#3B3732]">
-                        “{review.quote}”
-                      </blockquote>
+                <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+                  <div className="rounded-2xl bg-[#FAF7F2] p-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1E4D3B] text-sm font-bold text-white">
+                      1
                     </div>
+                    <h3 className="mt-4 font-semibold text-[#1C1B18]">
+                      Choose Your Edition
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[#666157]">
+                      Browse precision-tested 3D pop-up cards, 300 DPI sublimation clipart, and hyperlinked GoodNotes planners.
+                    </p>
+                  </div>
 
-                    <figcaption className="mt-6 border-t border-[#F1ECE4] pt-4">
-                      <p className="font-['Fraunces',serif] text-[15px] font-medium text-[#1E1E1C]">
-                        {review.author}
-                      </p>
-                      <p className="mt-0.5 text-xs text-[#766D64]">
-                        {review.location}
-                      </p>
-                      <p className="mt-2 text-[11px] font-semibold text-[#2C4C3B]">
-                        {review.edition}
-                      </p>
-                    </figcaption>
-                  </figure>
-                ))}
+                  <div className="rounded-2xl bg-[#FAF7F2] p-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1E4D3B] text-sm font-bold text-white">
+                      2
+                    </div>
+                    <h3 className="mt-4 font-semibold text-[#1C1B18]">
+                      Instant Secure Checkout
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[#666157]">
+                      Check out in seconds with Card, Apple Pay, or Google Pay—no waiting for shipping or physical post.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-[#FAF7F2] p-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1E4D3B] text-sm font-bold text-white">
+                      3
+                    </div>
+                    <h3 className="mt-4 font-semibold text-[#1C1B18]">
+                      Print, Cut &amp; Create
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[#666157]">
+                      Unzip your organised folders with step-by-step PDF guides ready for Cricut, Silhouette, or home printing.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Crafter Reviews */}
+                <div className="mt-12 border-t border-[#ECE5D8] pt-10">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {STUDIO_REVIEWS.map((review) => (
+                      <div
+                        key={review.name}
+                        className="flex flex-col justify-between rounded-2xl border border-[#ECE5D8] bg-[#FAF7F2]/60 p-6"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1 text-[#C87D32]">
+                            {[...Array(5)].map((_, idx) => (
+                              <Star key={idx} className="h-4 w-4 fill-current" />
+                            ))}
+                          </div>
+                          <p className="mt-3 text-sm leading-relaxed text-[#3D3A34]">
+                            “{review.quote}”
+                          </p>
+                        </div>
+                        <div className="mt-4 flex items-center gap-2 text-xs">
+                          <span className="font-semibold text-[#1C1B18]">{review.name}</span>
+                          <span className="inline-flex items-center gap-1 text-[#1E4D3B]">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            {review.badge}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </section>
           </>
