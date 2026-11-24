@@ -8,7 +8,7 @@ content:
     path: src/data/products.json
     type: file
     fields:
-      - name: root
+      - name: items
         label: Products
         type: object
         list: true
