@@ -11,7 +11,10 @@ content:
       - name: items
         label: Products
         type: object
-        list: true
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{TITLE} (£{PRICE})"
         fields:
           - name: id
             label: Product ID
