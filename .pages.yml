@@ -14,11 +14,8 @@ content:
         list:
           collapsible:
             collapsed: true
-            summary: "{TITLE} (£{PRICE})"
+            summary: "{TITLE} — £{PRICE}"
         fields:
-          - name: id
-            label: Product ID
-            type: string
           - name: TITLE
             label: Product Title
             type: string
@@ -27,32 +24,93 @@ content:
             label: Price (GBP)
             type: number
             required: true
-          - name: CURRENCY_CODE
-            label: Currency
-            type: string
-            default: GBP
-          - name: QUANTITY
-            label: Stock Quantity
+            options:
+              min: 0
+              step: 0.01
+          - name: COMPARE_AT_PRICE
+            label: Original Price (Optional — for Sale Badges)
             type: number
-            default: 999
-          - name: DESCRIPTION
-            label: Description
-            type: text
-          - name: TAGS
-            label: Category Tags
-            type: string
-            list: true
-          - name: MATERIALS
-            label: Materials / File Types
-            type: string
-            list: true
+            options:
+              min: 0
+              step: 0.01
+          - name: FEATURED
+            label: Pin to Top / Featured Product
+            type: boolean
+            default: false
+          - name: IN_STOCK
+            label: Active & Available for Sale
+            type: boolean
+            default: true
           - name: IMAGES
-            label: Product Photos
+            label: Product Photos (First photo is main thumbnail)
             type: image
             list: true
           - name: VIDEO_URL
             label: Video Link (YouTube, Vimeo, or MP4)
             type: string
-          - name: SKU
-            label: SKU
+          - name: DOWNLOAD_LINK
+            label: Digital File Delivery Link (Google Drive / Dropbox ZIP)
             type: string
+          - name: DESCRIPTION
+            label: Product Description
+            type: text
+            options:
+              rows: 12
+          - name: TAGS
+            label: Category & Search Tags
+            type: string
+            list: true
+          - name: MATERIALS
+            label: Included File Formats
+            type: select
+            list: true
+            options:
+              creatable: true
+              values:
+                - SVG
+                - PNG (300 DPI)
+                - DXF
+                - PDF
+                - JPG
+                - EPS
+                - Canva Template
+          - name: CURRENCY_CODE
+            label: Currency
+            type: select
+            default: GBP
+            options:
+              values:
+                - GBP
+                - USD
+                - EUR
+          - name: QUANTITY
+            label: Stock Quantity
+            type: number
+            default: 999
+          - name: id
+            label: URL Slug / Product ID
+            type: string
+          - name: SKU
+            label: SKU (Optional)
+            type: string
+
+  - name: settings
+    label: Store Settings & Promo Banner
+    path: src/data/settings.json
+    type: file
+    fields:
+      - name: bannerEnabled
+        label: Show Top Announcement Banner
+        type: boolean
+        default: true
+      - name: bannerText
+        label: Announcement Banner Text
+        type: string
+        default: "Instant Digital Download — Print & Craft Today!"
+      - name: shopName
+        label: Store Name
+        type: string
+        default: "Paper & Press Studio"
+      - name: contactEmail
+        label: Customer Support Email
+        type: string
