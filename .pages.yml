@@ -1,0 +1,50 @@
+media:
+  input: public/images
+  output: /images
+
+content:
+  - name: products
+    label: Store Products
+    path: src/data/products.json
+    type: file
+    fields:
+      - name: id
+        label: Product ID
+        type: string
+      - name: TITLE
+        label: Product Title
+        type: string
+        required: true
+      - name: PRICE
+        label: Price (GBP)
+        type: number
+        required: true
+      - name: CURRENCY_CODE
+        label: Currency
+        type: string
+        default: GBP
+      - name: QUANTITY
+        label: Stock Quantity
+        type: number
+        default: 999
+      - name: DESCRIPTION
+        label: Description
+        type: text
+      - name: TAGS
+        label: Category Tags
+        type: string
+        list: true
+      - name: MATERIALS
+        label: Materials / File Types
+        type: string
+        list: true
+      - name: IMAGES
+        label: Product Photos
+        type: image
+        list: true
+      - name: VIDEO_URL
+        label: Video Link (YouTube, Vimeo, or MP4)
+        type: string
+      - name: SKU
+        label: SKU
+        type: string
