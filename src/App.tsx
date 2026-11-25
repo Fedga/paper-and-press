@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 import { PRODUCTS, type Product } from './data/products';
 import type { CartItem } from './checkout';
 import {
@@ -245,7 +246,8 @@ export default function App() {
   const activeCategoryObj = categories.find((c) => c.id === activeCategory);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8F9FA] text-[#141619]">
+    <>
+      <div className="flex min-h-screen flex-col bg-[#F8F9FA] text-[#141619]">
       <Header
         navCategories={categories}
         activeCategory={activeCategory}
@@ -438,6 +440,8 @@ export default function App() {
           if (found) navigateToProduct(found);
         }}
       />
-    </div>
+      </div>
+      <Analytics />
+    </>
   );
 }
