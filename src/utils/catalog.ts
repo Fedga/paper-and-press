@@ -198,6 +198,34 @@ export function getPrimaryCategoryLabel(product: Product): string {
   return 'Digital Edition';
 }
 
+const FORMAT_CHECKS: Array<{ label: string; pattern: RegExp }> = [
+  { label: 'SVG', pattern: /\bsvg\b/i },
+  { label: 'PNG', pattern: /\bpng\b/i },
+  { label: 'PDF', pattern: /\bpdf\b/i },
+  { label: 'DXF', pattern: /\bdxf\b/i },
+  { label: 'EPS', pattern: /\beps\b/i },
+  { label: 'Canva', pattern: /\bcanva\b/i },
+  { label: 'Notion', pattern: /\bnotion\b/i },
+];
+
+/**
+ * Automatically extracts file-format badges (SVG, PNG, PDF, DXF, etc.)
+ * from each product's TITLE, TAGS, and DESCRIPTION.
+ */
+export function extractFileFormats(product: Product, max = 3): string[] {
+  const haystack = `${product.TITLE} ${product.TAGS.join(' ')} ${product.DESCRIPTION}`;
+  const found: string[] = [];
+
+  for (const check of FORMAT_CHECKS) {
+    if (check.pattern.test(haystack)) {
+      found.push(check.label);
+      if (found.length >= max) break;
+    }
+  }
+
+  return found.length > 0 ? found : ['PDF'];
+}
+
 export function extractTagIndex(products: Product[]): TagCount[] {
   const map = new Map<string, TagCount>();
 

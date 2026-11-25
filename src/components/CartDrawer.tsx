@@ -80,19 +80,19 @@ export function CartDrawer({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#141619]/40 backdrop-blur-[1px] transition-opacity"
+        className="fixed inset-0 bg-[#1F1B18]/40 backdrop-blur-[1px] transition-opacity"
         onClick={onClose}
       />
 
       {/* Slide-over panel */}
-      <div className="fixed inset-y-0 right-0 flex w-full max-w-[440px] flex-col bg-white shadow-2xl">
+      <div className="fixed inset-y-0 right-0 flex w-full max-w-[440px] flex-col bg-[#FAF8F5] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[#E8E0D5] bg-white px-6 py-4">
           <div className="flex items-baseline gap-2">
-            <h2 className="font-display text-xl font-medium text-[#141619]">
+            <h2 className="font-display text-xl font-medium text-[#1F1B18]">
               Shopping Bag
             </h2>
-            <span className="tabular-nums text-xs text-[#6C757D]">
+            <span className="tabular-nums text-xs text-[#7A6F64]">
               ({totalCount} {totalCount === 1 ? 'item' : 'items'})
             </span>
           </div>
@@ -100,7 +100,7 @@ export function CartDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close shopping bag"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#5C6370] transition-colors hover:bg-[#F1F3F5] hover:text-[#141619]"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[#6B6259] transition-colors hover:bg-[#F3EEE6] hover:text-[#1F1B18]"
           >
             <X className="h-5 w-5" />
           </button>
@@ -112,30 +112,29 @@ export function CartDrawer({
             <div className="space-y-5 py-4">
               <div className="flex items-start gap-3">
                 <CheckCircle2
-                  className="mt-0.5 h-6 w-6 shrink-0 text-[#1E4D3B]"
+                  className="mt-0.5 h-6 w-6 shrink-0 text-[#2C4C3B]"
                   strokeWidth={1.8}
                 />
                 <div>
-                  <h3 className="font-display text-lg font-medium text-[#141619]">
+                  <h3 className="font-display text-lg font-medium text-[#1F1B18]">
                     {checkoutResult.mode === 'redirect'
                       ? 'Payment Link Ready'
                       : 'Order Ready for Checkout'}
                   </h3>
-                  <p className="tabular-nums mt-1 text-xs text-[#5C6370]">
+                  <p className="tabular-nums mt-1 text-xs text-[#6B6259]">
                     Reference {checkoutResult.orderReference} · Total{' '}
                     {formatPrice(subtotal, currencyCode)} ({currencyCode})
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm leading-relaxed text-[#4B525E]">
+              <p className="text-sm leading-relaxed text-[#4E463F]">
                 {checkoutResult.message}
               </p>
 
-              {/* Itemized Receipt Summary */}
-              <div className="rounded-lg border border-[#E5E7EB] bg-[#F8F9FA] p-4">
-                <p className="text-xs font-semibold text-[#5C6370]">Order summary</p>
-                <ul className="mt-3 space-y-2 text-xs text-[#343A40]">
+              <div className="rounded-xl border border-[#E6DDD1] bg-white p-4">
+                <p className="text-xs font-semibold text-[#6B6259]">Order summary</p>
+                <ul className="mt-3 space-y-2 text-xs text-[#3D352E]">
                   {items.map((item) => (
                     <li
                       key={item.product.id}
@@ -144,7 +143,7 @@ export function CartDrawer({
                       <span className="truncate">
                         {item.quantity} × {splitProductTitle(item.product.TITLE).primary}
                       </span>
-                      <span className="tabular-nums shrink-0 font-medium text-[#141619]">
+                      <span className="tabular-nums shrink-0 font-medium text-[#1F1B18]">
                         {formatPrice(
                           item.product.PRICE * item.quantity,
                           item.product.CURRENCY_CODE,
@@ -153,7 +152,7 @@ export function CartDrawer({
                     </li>
                   ))}
                 </ul>
-                <div className="mt-3 flex items-baseline justify-between border-t border-[#E5E7EB] pt-3 text-sm font-semibold text-[#141619]">
+                <div className="mt-3 flex items-baseline justify-between border-t border-[#EFE8DD] pt-3 text-sm font-semibold text-[#1F1B18]">
                   <span>Total</span>
                   <span className="tabular-nums">
                     {formatPrice(subtotal, currencyCode)}
@@ -166,7 +165,7 @@ export function CartDrawer({
                   href={checkoutResult.paymentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-[#1E4D3B] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#163B2D]"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-[#2C4C3B] px-4 py-2.5 text-sm font-medium text-[#FAF8F5] hover:bg-[#21392F]"
                 >
                   <span>Continue to Payment</span>
                   <ExternalLink className="h-4 w-4" />
@@ -177,7 +176,7 @@ export function CartDrawer({
                 <button
                   type="button"
                   onClick={() => setCheckoutResult(null)}
-                  className="min-h-[42px] flex-1 rounded-lg border border-[#D8DCE2] bg-white px-4 py-2 text-sm font-medium text-[#141619] hover:bg-[#F8F9FA]"
+                  className="min-h-[42px] flex-1 rounded-full border border-[#D8CEC0] bg-white px-4 py-2 text-sm font-medium text-[#1F1B18] hover:bg-[#F3EEE6]"
                 >
                   Back to bag
                 </button>
@@ -188,7 +187,7 @@ export function CartDrawer({
                     setCheckoutResult(null);
                     onClose();
                   }}
-                  className="min-h-[42px] flex-1 rounded-lg bg-[#141619] px-4 py-2 text-sm font-medium text-white hover:bg-[#2B3036]"
+                  className="min-h-[42px] flex-1 rounded-full bg-[#1F1B18] px-4 py-2 text-sm font-medium text-[#FAF8F5] hover:bg-[#352F2A]"
                 >
                   Clear &amp; finish
                 </button>
@@ -196,25 +195,25 @@ export function CartDrawer({
             </div>
           ) : items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F1F3F5] text-[#5C6370]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#E6DDD1] bg-white text-[#6B6259]">
                 <ShoppingBag className="h-5 w-5" strokeWidth={1.7} />
               </div>
-              <p className="font-display mt-4 text-lg font-medium text-[#141619]">
+              <p className="font-display mt-4 text-lg font-medium text-[#1F1B18]">
                 Your bag is empty
               </p>
-              <p className="mt-1.5 max-w-[28ch] text-sm text-[#5C6370]">
-                Add SVG bundles, laser patterns, or printable planners to get started.
+              <p className="mt-1.5 max-w-[28ch] text-sm text-[#6B6259]">
+                Add SVG cut files, laser kits, or printable stationery to get started.
               </p>
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-6 min-h-[42px] rounded-lg border border-[#D8DCE2] bg-white px-5 py-2 text-sm font-medium text-[#141619] transition-colors hover:border-[#1E4D3B] hover:text-[#1E4D3B]"
+                className="mt-6 min-h-[42px] rounded-full border border-[#D8CEC0] bg-white px-5 py-2 text-sm font-medium text-[#1F1B18] transition-colors hover:border-[#2C4C3B] hover:text-[#2C4C3B]"
               >
                 Continue browsing
               </button>
             </div>
           ) : (
-            <ul className="divide-y divide-[#ECEEF1]" role="list">
+            <ul className="divide-y divide-[#E8E0D5]" role="list">
               {items.map(({ product, quantity }) => {
                 const { primary } = splitProductTitle(product.TITLE);
                 return (
@@ -225,14 +224,16 @@ export function CartDrawer({
                         onInspectProduct(product.id);
                         onClose();
                       }}
-                      className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#E5E7EB] bg-[#F1F3F5]"
+                      className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[#E6DDD1] bg-white p-1"
                     >
-                      <ResilientImage
-                        src={product.IMAGES[0]}
-                        alt={primary}
-                        compact
-                        className="h-full w-full"
-                      />
+                      <div className="h-full w-full overflow-hidden rounded-lg">
+                        <ResilientImage
+                          src={product.IMAGES[0]}
+                          alt={primary}
+                          compact
+                          className="h-full w-full"
+                        />
+                      </div>
                     </button>
 
                     <div className="flex min-w-0 flex-1 flex-col justify-between">
@@ -243,7 +244,7 @@ export function CartDrawer({
                             onInspectProduct(product.id);
                             onClose();
                           }}
-                          className="line-clamp-2 text-left text-sm font-medium text-[#141619] hover:text-[#1E4D3B]"
+                          className="font-display line-clamp-2 text-left text-[15px] leading-snug font-medium text-[#1F1B18] hover:text-[#2C4C3B]"
                         >
                           {primary}
                         </button>
@@ -251,36 +252,36 @@ export function CartDrawer({
                           type="button"
                           onClick={() => onRemoveItem(product.id)}
                           aria-label={`Remove ${primary}`}
-                          className="shrink-0 p-1 text-[#868E96] transition-colors hover:text-[#141619]"
+                          className="shrink-0 p-1 text-[#968B7F] transition-colors hover:text-[#1F1B18]"
                         >
                           <Trash2 className="h-4 w-4" strokeWidth={1.7} />
                         </button>
                       </div>
 
                       <div className="mt-3 flex items-center justify-between gap-3">
-                        <div className="inline-flex items-center rounded-md border border-[#D8DCE2] bg-white">
+                        <div className="inline-flex items-center rounded-full border border-[#DED5C8] bg-white px-0.5">
                           <button
                             type="button"
                             onClick={() => onUpdateQuantity(product.id, quantity - 1)}
                             aria-label={`Decrease quantity of ${primary}`}
-                            className="flex h-8 w-8 items-center justify-center text-[#343A40] hover:text-[#141619]"
+                            className="flex h-7 w-7 items-center justify-center text-[#3D352E] hover:text-[#1F1B18]"
                           >
                             <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <span className="tabular-nums min-w-[1.75rem] text-center text-xs font-medium text-[#141619]">
+                          <span className="tabular-nums min-w-[1.6rem] text-center text-xs font-medium text-[#1F1B18]">
                             {quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => onUpdateQuantity(product.id, quantity + 1)}
                             aria-label={`Increase quantity of ${primary}`}
-                            className="flex h-8 w-8 items-center justify-center text-[#343A40] hover:text-[#141619]"
+                            className="flex h-7 w-7 items-center justify-center text-[#3D352E] hover:text-[#1F1B18]"
                           >
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
 
-                        <span className="tabular-nums text-sm font-semibold text-[#141619]">
+                        <span className="tabular-nums text-sm font-semibold text-[#1F1B18]">
                           {formatPrice(product.PRICE * quantity, product.CURRENCY_CODE)}
                         </span>
                       </div>
@@ -294,16 +295,16 @@ export function CartDrawer({
 
         {/* Footer with Total & Checkout CTA */}
         {items.length > 0 && !checkoutResult && (
-          <div className="border-t border-[#E5E7EB] bg-[#F8F9FA] px-6 py-5">
-            <div className="flex items-baseline justify-between text-sm text-[#4B525E]">
+          <div className="border-t border-[#E8E0D5] bg-white px-6 py-5">
+            <div className="flex items-baseline justify-between text-sm text-[#5C534A]">
               <span>Digital delivery</span>
               <span>Instant · Free</span>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-base font-semibold text-[#141619]">
+              <span className="text-base font-semibold text-[#1F1B18]">
                 Subtotal ({currencyCode})
               </span>
-              <span className="tabular-nums text-lg font-semibold text-[#141619]">
+              <span className="tabular-nums text-lg font-semibold text-[#1F1B18]">
                 {formatPrice(subtotal, currencyCode)}
               </span>
             </div>
@@ -312,18 +313,18 @@ export function CartDrawer({
               type="button"
               onClick={onProceedCheckout}
               disabled={isCheckingOut}
-              className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-[#1E4D3B] px-5 py-3 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#163B2D] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E4D3B]"
+              className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-[#2C4C3B] px-5 py-3 text-sm font-medium text-[#FAF8F5] shadow-[0_2px_8px_rgba(44,74,62,0.18)] transition-colors duration-150 hover:bg-[#21392F] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2C4C3B]"
             >
               <span>{isCheckingOut ? 'Preparing checkout…' : 'Checkout'}</span>
               <ArrowRight className="h-4 w-4" strokeWidth={1.8} />
             </button>
 
-            <div className="mt-3 flex items-center justify-between text-xs text-[#6C757D]">
+            <div className="mt-3 flex items-center justify-between text-xs text-[#7A6F64]">
               <span>Stripe &amp; PayPal ready</span>
               <button
                 type="button"
                 onClick={onClearCart}
-                className="underline decoration-[#CBD2D9] underline-offset-2 hover:text-[#141619]"
+                className="underline decoration-[#D8CEC0] underline-offset-2 hover:text-[#1F1B18]"
               >
                 Clear bag
               </button>

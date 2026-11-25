@@ -34,13 +34,11 @@ export function ProductGallery({ product }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  // Reset active slide when switching products
   useEffect(() => {
     setActiveIndex(0);
     setLightboxOpen(false);
   }, [product.id]);
 
-  // Keyboard navigation
   useEffect(() => {
     if (slides.length <= 1 && !lightboxOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -63,85 +61,86 @@ export function ProductGallery({ product }: ProductGalleryProps) {
   return (
     <div className="space-y-3.5">
       {/* Main Interactive Stage */}
-      <div className="group relative aspect-square w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#F1F3F5]">
-        {!currentSlide ? (
-          <ResilientImage
-            src=""
-            alt={product.TITLE}
-            fallbackTitle={primary}
-            className="h-full w-full"
-          />
-        ) : currentSlide.kind === 'image' ? (
-          <>
+      <div className="group relative aspect-square w-full overflow-hidden rounded-2xl border border-[#E6DDD1] bg-white p-2.5 shadow-[0_12px_32px_-22px_rgba(31,27,24,0.22)]">
+        <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#F3EEE6]">
+          {!currentSlide ? (
             <ResilientImage
-              src={currentSlide.src}
-              alt={`${primary} — view ${currentSlide.index + 1}`}
+              src=""
+              alt={product.TITLE}
               fallbackTitle={primary}
-              loading="eager"
               className="h-full w-full"
             />
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(true)}
-              aria-label="Open full-screen preview"
-              className="absolute right-3 bottom-3 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#E5E7EB] bg-white/95 text-[#141619] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#1E4D3B]"
-            >
-              <Expand className="h-4 w-4" strokeWidth={1.8} />
-            </button>
-          </>
-        ) : (
-          /* Video Player Slot (YouTube, Vimeo, or local .mp4/.webm) */
-          <div className="flex h-full w-full items-center justify-center bg-[#141619]">
-            {currentSlide.video.type === 'youtube' || currentSlide.video.type === 'vimeo' ? (
-              <iframe
-                src={currentSlide.video.embedUrl}
-                title={`${primary} video preview`}
-                className="h-full w-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+          ) : currentSlide.kind === 'image' ? (
+            <>
+              <ResilientImage
+                src={currentSlide.src}
+                alt={`${primary} — view ${currentSlide.index + 1}`}
+                fallbackTitle={primary}
+                loading="eager"
+                className="h-full w-full"
               />
-            ) : (
-              <video
-                src={currentSlide.video.src}
-                controls
-                playsInline
-                preload="metadata"
-                className="h-full w-full object-contain"
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                aria-label="Open full-screen preview"
+                className="absolute right-3 bottom-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#E6DDD1] bg-[#FAF8F5]/95 text-[#1F1B18] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#2C4C3B]"
               >
-                Your browser does not support embedded video playback.
-              </video>
-            )}
-          </div>
-        )}
+                <Expand className="h-4 w-4" strokeWidth={1.8} />
+              </button>
+            </>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[#1F1B18]">
+              {currentSlide.video.type === 'youtube' || currentSlide.video.type === 'vimeo' ? (
+                <iframe
+                  src={currentSlide.video.embedUrl}
+                  title={`${primary} video preview`}
+                  className="h-full w-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={currentSlide.video.src}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-contain"
+                >
+                  Your browser does not support embedded video playback.
+                </video>
+              )}
+            </div>
+          )}
 
-        {/* Prev / Next Navigation Arrows */}
-        {slides.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={goPrev}
-              aria-label="Previous image"
-              className="absolute top-1/2 left-3 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E5E7EB] bg-white/95 text-[#141619] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#1E4D3B]"
-            >
-              <ChevronLeft className="h-5 w-5" strokeWidth={1.8} />
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              aria-label="Next image"
-              className="absolute top-1/2 right-3 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E5E7EB] bg-white/95 text-[#141619] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#1E4D3B]"
-            >
-              <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
-            </button>
-          </>
-        )}
+          {/* Prev / Next Navigation Arrows */}
+          {slides.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                aria-label="Previous image"
+                className="absolute top-1/2 left-3 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E6DDD1] bg-[#FAF8F5]/95 text-[#1F1B18] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#2C4C3B]"
+              >
+                <ChevronLeft className="h-5 w-5" strokeWidth={1.8} />
+              </button>
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="Next image"
+                className="absolute top-1/2 right-3 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E6DDD1] bg-[#FAF8F5]/95 text-[#1F1B18] shadow-sm transition-all duration-150 hover:bg-white focus-visible:outline-2 focus-visible:outline-[#2C4C3B]"
+              >
+                <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
+              </button>
+            </>
+          )}
 
-        {/* Quiet slide counter */}
-        {slides.length > 1 && (
-          <div className="tabular-nums pointer-events-none absolute bottom-3 left-3 rounded-md bg-[#141619]/75 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-xs">
-            {currentSlide?.kind === 'video' ? 'Video' : `${activeIndex + 1} / ${slides.length}`}
-          </div>
-        )}
+          {/* Quiet slide counter */}
+          {slides.length > 1 && (
+            <div className="tabular-nums pointer-events-none absolute bottom-3 left-3 rounded-full bg-[#1F1B18]/75 px-3 py-1 text-xs font-medium text-[#FAF8F5] backdrop-blur-xs">
+              {currentSlide?.kind === 'video' ? 'Video' : `${activeIndex + 1} / ${slides.length}`}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Thumbnail Rail (IMAGE1..IMAGE10 + optional VIDEO_URL slot) */}
@@ -165,35 +164,36 @@ export function ProductGallery({ product }: ProductGalleryProps) {
                     : `View photo ${idx + 1} of ${product.IMAGES.length}`
                 }
                 onClick={() => setActiveIndex(idx)}
-                className={`relative aspect-square overflow-hidden rounded-lg border transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E4D3B] ${
+                className={`relative aspect-square overflow-hidden rounded-xl border bg-white p-1 transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2C4C3B] ${
                   isSelected
-                    ? 'border-[#1E4D3B] ring-2 ring-[#1E4D3B]/25'
-                    : 'border-[#E5E7EB] opacity-75 hover:opacity-100'
+                    ? 'border-[#2C4C3B] ring-2 ring-[#2C4C3B]/20'
+                    : 'border-[#E6DDD1] opacity-75 hover:opacity-100'
                 }`}
               >
-                {slide.kind === 'image' ? (
-                  <ResilientImage
-                    src={slide.src}
-                    alt={`${primary} thumbnail ${idx + 1}`}
-                    compact
-                    className="h-full w-full"
-                  />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#141619] text-white">
-                    <Play className="h-4 w-4 fill-current" />
-                    <span className="text-[10px] font-medium">Video</span>
-                  </div>
-                )}
+                <div className="h-full w-full overflow-hidden rounded-lg">
+                  {slide.kind === 'image' ? (
+                    <ResilientImage
+                      src={slide.src}
+                      alt={`${primary} thumbnail ${idx + 1}`}
+                      compact
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#1F1B18] text-[#FAF8F5]">
+                      <Play className="h-4 w-4 fill-current" />
+                      <span className="text-[10px] font-medium">Video</span>
+                    </div>
+                  )}
+                </div>
               </button>
             );
           })}
         </div>
       )}
 
-      {/* Subtle note if a video is attached */}
       {parsedVideo && (
-        <div className="flex items-center gap-2 text-xs text-[#5C6370]">
-          <Film className="h-3.5 w-3.5 text-[#1E4D3B]" strokeWidth={1.8} />
+        <div className="flex items-center gap-2 text-xs text-[#6B6259]">
+          <Film className="h-3.5 w-3.5 text-[#2C4C3B]" strokeWidth={1.8} />
           <span>Video preview available in gallery</span>
         </div>
       )}
@@ -201,7 +201,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
       {/* Full-Screen Lightbox for Images */}
       {lightboxOpen && currentSlide?.kind === 'image' && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#141619]/92 p-4 sm:p-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F1B18]/92 p-4 sm:p-8"
           role="dialog"
           aria-modal="true"
           aria-label="Full-screen product image preview"
@@ -211,7 +211,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
             type="button"
             onClick={() => setLightboxOpen(false)}
             aria-label="Close full-screen preview"
-            className="absolute top-4 right-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            className="absolute top-4 right-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[#FAF8F5] transition-colors hover:bg-white/20"
           >
             <X className="h-5 w-5" />
           </button>
@@ -225,7 +225,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
                   goPrev();
                 }}
                 aria-label="Previous image"
-                className="absolute top-1/2 left-4 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                className="absolute top-1/2 left-4 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-[#FAF8F5] transition-colors hover:bg-white/20"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -236,7 +236,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
                   goNext();
                 }}
                 aria-label="Next image"
-                className="absolute top-1/2 right-4 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                className="absolute top-1/2 right-4 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-[#FAF8F5] transition-colors hover:bg-white/20"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -244,7 +244,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
           )}
 
           <div
-            className="relative max-h-[88vh] max-w-[90vw] overflow-hidden rounded-lg bg-[#1C1F24]"
+            className="relative max-h-[88vh] max-w-[90vw] overflow-hidden rounded-xl bg-[#26211D]"
             onClick={(e) => e.stopPropagation()}
           >
             <img
@@ -255,7 +255,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
             />
           </div>
 
-          <div className="tabular-nums absolute bottom-5 left-1/2 -translate-x-1/2 rounded-md bg-black/60 px-3 py-1 text-xs font-medium text-white">
+          <div className="tabular-nums absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3.5 py-1 text-xs font-medium text-[#FAF8F5]">
             {activeIndex + 1} / {slides.length}
           </div>
         </div>

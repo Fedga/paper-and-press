@@ -31,12 +31,12 @@ export function ResilientImage({
       <div
         role="img"
         aria-label={alt}
-        className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[#F1F3F5] via-[#E9ECEF] to-[#DEE2E6] text-[#5C6370] select-none ${
+        className={`flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-[#F5F0E8] via-[#EFE8DC] to-[#E6DDD0] text-[#6B6259] select-none ${
           compact ? 'p-2' : 'p-6 text-center'
         } ${className}`}
       >
         <div
-          className={`flex items-center justify-center rounded-full border border-[#D4D8DF] bg-white/80 text-[#5C6370] ${
+          className={`flex items-center justify-center rounded-full border border-[#DCD2C4] bg-[#FAF8F5]/90 text-[#6B6259] ${
             compact ? 'h-7 w-7' : 'mb-3 h-11 w-11'
           }`}
         >
@@ -44,10 +44,10 @@ export function ResilientImage({
         </div>
         {!compact && (
           <>
-            <p className="max-w-[200px] truncate text-xs font-medium text-[#343A40]">
+            <p className="max-w-[200px] truncate text-xs font-medium text-[#3D352E]">
               {fallbackTitle || alt}
             </p>
-            <p className="mt-1 text-[11px] text-[#6C757D]">Preview unavailable</p>
+            <p className="mt-1 text-[11px] text-[#7D7369]">Preview unavailable</p>
           </>
         )}
       </div>
@@ -55,9 +55,9 @@ export function ResilientImage({
   }
 
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[#F1F3F5] ${className}`}>
+    <div className={`relative h-full w-full overflow-hidden bg-[#F3EEE6] ${className}`}>
       {!loaded && (
-        <div className="absolute inset-0 bg-[#ECEFF2]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[#EFE9DF]" aria-hidden="true" />
       )}
       <img
         src={src}
