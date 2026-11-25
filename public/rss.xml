@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://yahoo.com">
+  <channel>
+    <title>Paper &amp; Press Studio — Digital Craft &amp; Printable Editions</title>
+    <link>https://paperpressprintables.com</link>
+    <description>Crafted digital editions for makers and planners.</description>
+    <language>en-us</language>
+
+    <item>
+      <title>Your Printable Title Here</title>
+      <link>https://paperpressprintables.com/</link>
+      <guid isPermaLink="false">paperpress-item-1</guid>
+      <description>Short description of your printable edition.</description>
+      <pubDate>Wed, 25 Nov 2026 10:00:00 GMT</pubDate>
+      <enclosure url="https://paperpressprintables.com/YOUR-IMAGE-PATH.jpg" type="image/jpeg" length="12345" />
+      <media:content url="https://paperpressprintables.com/YOUR-IMAGE-PATH.jpg" medium="image" />
+    </item>
+
+  </channel>
+</rss>
